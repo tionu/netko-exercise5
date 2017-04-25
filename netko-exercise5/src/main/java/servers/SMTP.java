@@ -18,21 +18,21 @@ public class SMTP {
 		try {
 			serverSocket = new ServerSocket(2500);
 			socket = serverSocket.accept();
-			Utilities.sendData(socket, "+220 ready\r\n");
+			Utilities.sendData(socket, "220 ready\r\n");
 			String receivedData = Utilities.receiveData(socket);
-			if(receivedData.startsWith("EHLOx"))
-				Utilities.sendData(socket, "250-localhost\r\n"
-						+ "250-SIZE 54525952\r\n"
-						+ "250-AUTH LOGIN\r\n"
-						+ "250-AUTH=PLAIN LOGIN\r\n"
-						+ "250-8BITMIME\r\n");
+			if(receivedData.startsWith("EHLO"))
+				Utilities.sendData(socket, "250 localhost\r\n"
+						+ "250 SIZE 54525952\r\n"
+						+ "250 AUTH LOGIN\r\n"
+						+ "250 AUTH=PLAIN LOGIN\r\n"
+						+ "250 8BITMIME\r\n");
 			else 
 				Utilities.sendData(socket, "502 5.5.2 Error: command not recognized\r\n");
-			receivedData = Utilities.receiveData(socket);
-			if(receivedData.startsWith("HELO"))
-				Utilities.sendData(socket, "250 OK\r\n");
-			else 
-				Utilities.sendData(socket, "502 5.5.2 Error: command not recognized\r\n");
+//			receivedData = Utilities.receiveData(socket);
+//			if(receivedData.startsWith("HELO"))
+//				Utilities.sendData(socket, "250 OK\r\n");
+//			else 
+//				Utilities.sendData(socket, "502 5.5.2 Error: command not recognized\r\n");
 			receivedData = Utilities.receiveData(socket);
 			if(receivedData.startsWith("MAIL FROM:"))
 				Utilities.sendData(socket, "250 OK\r\n");
