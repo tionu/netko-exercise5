@@ -88,7 +88,7 @@ public class POP3 {
 				else if (receivedData.equals("RETR 2\r\n"))
 					Utilities.sendData(socket,
 							"+OK Message follows\r\n" + getHeader(2) + "\r\n" + "Noch ein Test.\r\n" + ".\r\n");
-				else if (receivedData.equals("RETR 1\r\n"))
+				else if (receivedData.equals("RETR 3\r\n"))
 					Utilities.sendData(socket,
 							"+OK Message follows\r\n" + getHeader(3) + "\r\n" + nachricht + "\r\n" + ".\r\n");
 				else if (receivedData.equals("UIDL\r\n")) {
