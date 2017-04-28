@@ -3,8 +3,16 @@ package servers;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+
+import persistence.HospitalObject;
+import persistence.Persistence;
+import persistence.PersistenceProvider;
+import persistence.SQLitePersistence;
+import persistence.model.Patient;
 
 public class POP3 {
 
@@ -15,6 +23,14 @@ public class POP3 {
 
 	private int port;
 	private SimpleDateFormat dateForUid;
+	String nachricht = "";
+	String patienten = "";
+
+	// Trenneichen f�r Tabellendarstellung
+	private static final String TR = " | ";
+
+	// Datumformat
+	private static final DateFormat DATUMSFORMAT = new SimpleDateFormat("dd.MM.yyyy");
 
 	public POP3(int port) {
 		this.port = port;
@@ -22,6 +38,8 @@ public class POP3 {
 	}
 
 	public void start() {
+
+		nachrichtArzt();
 		ServerSocket serverSocket = null;
 		try {
 			serverSocket = new ServerSocket(port);
@@ -70,9 +88,9 @@ public class POP3 {
 				else if (receivedData.equals("RETR 2\r\n"))
 					Utilities.sendData(socket,
 							"+OK Message follows\r\n" + getHeader(2) + "\r\n" + "Noch ein Test.\r\n" + ".\r\n");
-				else if (receivedData.equals("RETR 3\r\n"))
+				else if (receivedData.equals("RETR 1\r\n"))
 					Utilities.sendData(socket,
-							"+OK Message follows\r\n" + getHeader(3) + "\r\n" + "Ein letzter Test.\r\n" + ".\r\n");
+							"+OK Message follows\r\n" + getHeader(3) + "\r\n" + nachricht + "\r\n" + ".\r\n");
 				else if (receivedData.equals("UIDL\r\n")) {
 					Date now = new Date();
 					String uidroot = dateForUid.format(now);
@@ -91,6 +109,24 @@ public class POP3 {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	private void nachrichtArzt() {
+		nachricht = "anbei die aktuelle Patientenliste: " + "\r\n" + "\r\n";
+		nachricht += patientenListeVorbereiten();
+
+	}
+
+	private String patientenListeVorbereiten() {
+		PersistenceProvider persistence = Persistence.getInstance();
+		List<Patient> patientenListe = persistence.readAll(Patient.class);
+
+		for (Patient patient : patientenListe) {
+			patienten += (patient.getNachname() + TR + patient.getVorname() + TR
+					+ DATUMSFORMAT.format(patient.getGeburtsdatum())) + "\r\n";
+		}
+		return patienten;
+
 	}
 
 	private String getHeader(int index) {
